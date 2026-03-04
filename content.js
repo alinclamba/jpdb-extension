@@ -23,7 +23,7 @@ function buildSnippet() {
 
   return {
     plain: `Site: ${siteUrl} | JPDB ${emoji} |`,
-    html: `Site: ${escHtml(siteUrl)} | <a href="${escHtml(jpdbUrl)}">JPDB</a> ${emoji} |`,
+    html: `<strong>Site</strong>: <a href="${escHtml(siteUrl)}">${escHtml(siteUrl)}</a> | <a href="${escHtml(jpdbUrl)}">JPDB</a> ${emoji} |`,
   };
 }
 
