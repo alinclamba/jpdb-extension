@@ -45,7 +45,8 @@ input.addEventListener('keydown', async (e) => {
     return;
   }
 
-  const siteUrl = `https://${domain}`;
+  const isNumericId = /^\d+$/.test(domain);
+  const siteUrl = isNumericId ? domain : `https://${domain}`;
 
   snippetPlain = `Site: ${siteUrl} | JPDB ${emoji} |`;
   snippetHtml = `Site: ${escHtml(siteUrl)} | <a href="${escHtml(jpdbUrl)}">JPDB</a> ${emoji} |`;
