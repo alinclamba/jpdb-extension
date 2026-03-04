@@ -33,7 +33,7 @@ btn.title = 'Copy JPDB snippet to clipboard';
 
 Object.assign(btn.style, {
   position: 'fixed',
-  right: '280px',
+  right: '840px',
   top: '60px',
   zIndex: '99999',
   padding: '8px 16px',
