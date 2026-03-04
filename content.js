@@ -6,12 +6,18 @@ function getSiteParam() {
   return new URLSearchParams(window.location.search).get('url') || '';
 }
 
+function resolveSiteUrl(raw) {
+  if (!/^\d+$/.test(raw)) return `https://${raw}`;
+  // Numeric blog ID — extract siteurl from the Blog Details section
+  const match = document.body.innerText.match(/siteurl:\s*(https?:\/\/[^\s(]+)/);
+  return match ? match[1] : raw;
+}
+
 function buildSnippet() {
   const raw = getSiteParam();
   if (!raw) return null;
 
-  const isNumericId = /^\d+$/.test(raw);
-  const siteUrl = isNumericId ? raw : `https://${raw}`;
+  const siteUrl = resolveSiteUrl(raw);
   const jpdbUrl = `https://jptools.wordpress.com/debug/?url=${encodeURIComponent(raw)}`;
   const emoji = document.body.innerText.includes('Everything looks great!') ? '🟢' : '🔴';
 
@@ -27,17 +33,14 @@ btn.title = 'Copy JPDB snippet to clipboard';
 
 Object.assign(btn.style, {
   position: 'fixed',
-  left: '0',
-  top: '50%',
-  transform: 'translateY(-50%) rotate(-90deg)',
-  transformOrigin: 'left center',
-  translate: '0 -100%',
+  right: '20px',
+  top: '20px',
   zIndex: '99999',
   padding: '8px 16px',
   background: '#0070f3',
   color: '#fff',
   border: 'none',
-  borderRadius: '0 0 8px 8px',
+  borderRadius: '8px',
   fontSize: '13px',
   fontFamily: 'system-ui, sans-serif',
   fontWeight: '600',
