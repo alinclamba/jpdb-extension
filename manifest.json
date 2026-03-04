@@ -1,12 +1,15 @@
 {
   "manifest_version": 3,
   "name": "JPDB Snippet Generator",
-  "version": "1.0",
-  "description": "Generate and copy JPDB status snippets for Jetpack support.",
-  "action": {
-    "default_popup": "popup.html",
-    "default_title": "JPDB Snippet Generator"
-  },
+  "version": "1.1",
+  "description": "Inject a Copy button on the JPDB debugger page.",
   "permissions": ["clipboardWrite"],
-  "host_permissions": ["https://jptools.wordpress.com/*"]
+  "host_permissions": ["https://jptools.wordpress.com/*"],
+  "content_scripts": [
+    {
+      "matches": ["https://jptools.wordpress.com/debug/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
 }
