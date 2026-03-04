@@ -29,9 +29,11 @@ input.addEventListener('keydown', async (e) => {
   snippetBtn.classList.remove('copied');
   statusEl.textContent = 'Checking…';
 
+  const jpdbUrl = `https://jptools.wordpress.com/debug/?url=${encodeURIComponent(domain)}`;
+
   let emoji;
   try {
-    const res = await fetch(`https://jptools.wordpress.com/debug/?url=${encodeURIComponent(domain)}`);
+    const res = await fetch(jpdbUrl);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const text = await res.text();
     emoji = text.includes('Everything looks great!') ? '🟢' : '🔴';
@@ -43,11 +45,10 @@ input.addEventListener('keydown', async (e) => {
     return;
   }
 
-  const jpdbUrl = `https://jptools.wordpress.com/debug/?url=${encodeURIComponent(domain)}`;
   const siteUrl = `https://${domain}`;
 
   snippetPlain = `Site: ${siteUrl} | JPDB ${emoji} |`;
-  snippetHtml = `Site: ${escHtml(siteUrl)} | <a href="${jpdbUrl}">JPDB</a> ${emoji} |`;
+  snippetHtml = `Site: ${escHtml(siteUrl)} | <a href="${escHtml(jpdbUrl)}">JPDB</a> ${emoji} |`;
 
   statusEl.textContent = '';
   snippetBtn.textContent = snippetPlain;
