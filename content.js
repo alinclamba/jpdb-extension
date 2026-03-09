@@ -13,6 +13,21 @@ function resolveSiteUrl(raw) {
   return match ? match[1] : raw;
 }
 
+function getUsefulLink(linkText) {
+  const anchors = document.querySelectorAll('a');
+  for (const a of anchors) {
+    if (a.textContent.trim().toLowerCase() === linkText.toLowerCase()) return a.href;
+  }
+  return null;
+}
+
+const PRODUCTS = [
+  { linkText: 'Backup and Scan', label: 'RWDB' },
+  { linkText: 'Social RC',       label: 'SocialRC' },
+  { linkText: 'Videos',          label: 'VideoTools' },
+  { linkText: 'Akismet',         label: 'AKMC' },
+];
+
 function buildSnippet() {
   const raw = getSiteParam();
   if (!raw) return null;
@@ -21,9 +36,20 @@ function buildSnippet() {
   const jpdbUrl = `https://jptools.wordpress.com/debug/?url=${encodeURIComponent(raw)}`;
   const emoji = document.body.innerText.includes('Everything looks great!') ? '🟢' : '🔴';
 
+  let plainExtra = '';
+  let htmlExtra = '';
+
+  for (const { linkText, label } of PRODUCTS) {
+    const href = getUsefulLink(linkText);
+    if (href) {
+      plainExtra += ` | ${label}`;
+      htmlExtra  += ` | <a href="${escHtml(href)}">${label}</a>`;
+    }
+  }
+
   return {
-    plain: `Site: ${siteUrl} | JPDB ${emoji} |`,
-    html: `<strong>Site</strong>: <a href="${escHtml(siteUrl)}">${escHtml(siteUrl)}</a> | <a href="${escHtml(jpdbUrl)}">JPDB</a> ${emoji} |`,
+    plain: `Site: ${siteUrl} | JPDB ${emoji}${plainExtra} |`,
+    html:  `<strong>Site</strong>: <a href="${escHtml(siteUrl)}">${escHtml(siteUrl)}</a> | <a href="${escHtml(jpdbUrl)}">JPDB</a> ${emoji}${htmlExtra} |`,
   };
 }
 
@@ -32,11 +58,7 @@ btn.textContent = 'Copy JPDB info';
 btn.title = 'Copy JPDB snippet to clipboard';
 
 Object.assign(btn.style, {
-  position: 'fixed',
-  right: '840px',
-  top: '60px',
-  zIndex: '99999',
-  padding: '8px 16px',
+  padding: '6px 14px',
   background: '#0070f3',
   color: '#fff',
   border: 'none',
@@ -45,9 +67,9 @@ Object.assign(btn.style, {
   fontFamily: 'system-ui, sans-serif',
   fontWeight: '600',
   cursor: 'pointer',
-  boxShadow: '0 2px 8px rgba(0,0,0,0.25)',
   whiteSpace: 'nowrap',
   userSelect: 'none',
+  verticalAlign: 'middle',
 });
 
 btn.addEventListener('mouseenter', () => { btn.style.background = '#005bb5'; });
@@ -91,4 +113,11 @@ btn.addEventListener('click', async () => {
   }
 });
 
-document.body.appendChild(btn);
+const nav = document.querySelector('.pri-nav.home-nav');
+if (nav) {
+  const li = document.createElement('li');
+  li.appendChild(btn);
+  nav.prepend(li);
+} else {
+  document.body.appendChild(btn);
+}
