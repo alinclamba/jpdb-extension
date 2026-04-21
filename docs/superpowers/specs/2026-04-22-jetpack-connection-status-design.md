@@ -60,3 +60,24 @@ With a call to `getConnectionStatus()`, then build the JPDB segment:
 - If `label` is set: `JPDB 🟡 \`site-only connection\`` (plain) / `JPDB 🟡 <code>site-only connection</code>` (HTML)
 
 No other files change. No new permissions needed.
+
+## Bug Fix: Double `https://` in Site URL
+
+### Problem
+
+`resolveSiteUrl(raw)` always prepends `https://` when `raw` is not a numeric blog ID. If the `?url=` param already contains the protocol (e.g. `?url=https://example.com`), the result is `https://https://example.com`.
+
+### Fix
+
+In `resolveSiteUrl()`, check for an existing protocol before prepending:
+
+```js
+function resolveSiteUrl(raw) {
+  if (/^\d+$/.test(raw)) {
+    const match = document.body.innerText.match(/siteurl:\s*(https?:\/\/[^\s(]+)/);
+    return match ? match[1] : raw;
+  }
+  if (/^https?:\/\//i.test(raw)) return raw;
+  return `https://${raw}`;
+}
+```
