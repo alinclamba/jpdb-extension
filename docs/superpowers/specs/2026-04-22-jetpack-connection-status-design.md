@@ -81,14 +81,17 @@ function getSitePlanSlugs() {
 
 ### Product Rules
 
-| Label | Slug prefix(es) that trigger it | Link text in page |
+| Label | Slug prefix(es) that trigger it | Link source |
 |---|---|---|
-| RWDB | `jetpack_backup`, `jetpack_scan` | `Backup and Scan` |
-| VideoTools | `jetpack_videopress` | `Videos` |
-| SocialRC | `jetpack_social` | `Social RC` |
-| AKMC | `jetpack_anti_spam` | `Akismet` |
+| RWDB | `jetpack_backup`, `jetpack_scan` | link text `Backup and Scan` in page |
+| VideoTools | `jetpack_videopress` | link text `Videos` in page |
+| SocialRC | `jetpack_social` | link text `Social RC` in page |
+| AKMC | `jetpack_anti_spam` | link text `Akismet` in page |
+| Stats | `jetpack_stats` | generated: `https://wordpress.com/my-stats/?blog={blogId}` |
 
 RWDB appears once even if both Backup and Scan plans are present.
+
+Blog ID for Stats link comes from `#jptools-debug-more-info-blog-id strong`.
 
 ### Implementation
 
@@ -100,8 +103,11 @@ const PRODUCT_RULES = [
   { label: 'VideoTools', slugPrefixes: ['jetpack_videopress'],             linkText: 'Videos' },
   { label: 'SocialRC',   slugPrefixes: ['jetpack_social'],                 linkText: 'Social RC' },
   { label: 'AKMC',       slugPrefixes: ['jetpack_anti_spam'],              linkText: 'Akismet' },
+  { label: 'Stats',      slugPrefixes: ['jetpack_stats'],                  linkFn: (blogId) => `https://wordpress.com/my-stats/?blog=${blogId}` },
 ];
 ```
+
+Rules with `linkText` get their URL via `getUsefulLink()`. Rules with `linkFn` generate the URL using the blog ID from `#jptools-debug-more-info-blog-id strong`.
 
 For each rule: check if any site plan slug starts with any of the rule's `slugPrefixes`. If yes, get the link from the page via `getUsefulLink(linkText)` and include the product in the snippet.
 
