@@ -26,6 +26,16 @@ function getConnectionStatus() {
   return { emoji: '🔴', label: text || 'Unknown error' };
 }
 
+function getSitePlanSlugs() {
+  return [...document.querySelectorAll('#get_plans_and_products strong')]
+    .map(el => el.innerText.trim());
+}
+
+function getBlogId() {
+  const el = document.querySelector('#jptools-debug-more-info-blog-id strong');
+  return el ? el.innerText.trim() : '';
+}
+
 function getUsefulLink(linkText) {
   const anchors = document.querySelectorAll('a');
   for (const a of anchors) {
@@ -34,11 +44,12 @@ function getUsefulLink(linkText) {
   return null;
 }
 
-const PRODUCTS = [
-  { linkText: 'Backup and Scan', label: 'RWDB' },
-  { linkText: 'Social RC',       label: 'SocialRC' },
-  { linkText: 'Videos',          label: 'VideoTools' },
-  { linkText: 'Akismet',         label: 'AKMC' },
+const PRODUCT_RULES = [
+  { label: 'RWDB',       slugPrefixes: ['jetpack_backup', 'jetpack_scan'], linkText: 'Backup and Scan' },
+  { label: 'VideoTools', slugPrefixes: ['jetpack_videopress'],             linkText: 'Videos' },
+  { label: 'SocialRC',   slugPrefixes: ['jetpack_social'],                 linkText: 'Social RC' },
+  { label: 'AKMC',       slugPrefixes: ['jetpack_anti_spam'],              linkText: 'Akismet' },
+  { label: 'Stats',      slugPrefixes: ['jetpack_stats'],                  linkFn: (blogId) => `https://wordpress.com/my-stats/?blog=${blogId}` },
 ];
 
 function buildSnippet() {
@@ -56,12 +67,20 @@ function buildSnippet() {
   let plainExtra = '';
   let htmlExtra = '';
 
-  for (const { linkText, label } of PRODUCTS) {
-    const href = getUsefulLink(linkText);
-    if (href) {
-      plainExtra += ` | ${label}`;
-      htmlExtra  += ` | <a href="${escHtml(href)}">${label}</a>`;
-    }
+  const planSlugs = getSitePlanSlugs();
+  const blogId = getBlogId();
+
+  for (const rule of PRODUCT_RULES) {
+    const hasProduct = rule.slugPrefixes.some(prefix =>
+      planSlugs.some(slug => slug.startsWith(prefix))
+    );
+    if (!hasProduct) continue;
+
+    const href = rule.linkFn ? rule.linkFn(blogId) : getUsefulLink(rule.linkText);
+    if (!href) continue;
+
+    plainExtra += ` | ${rule.label}`;
+    htmlExtra  += ` | <a href="${escHtml(href)}">${rule.label}</a>`;
   }
 
   return {
