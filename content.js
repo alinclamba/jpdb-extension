@@ -7,10 +7,12 @@ function getSiteParam() {
 }
 
 function resolveSiteUrl(raw) {
-  if (!/^\d+$/.test(raw)) return `https://${raw}`;
-  // Numeric blog ID — extract siteurl from the Blog Details section
-  const match = document.body.innerText.match(/siteurl:\s*(https?:\/\/[^\s(]+)/);
-  return match ? match[1] : raw;
+  if (/^\d+$/.test(raw)) {
+    const match = document.body.innerText.match(/siteurl:\s*(https?:\/\/[^\s(]+)/);
+    return match ? match[1] : raw;
+  }
+  if (/^https?:\/\//i.test(raw)) return raw;
+  return `https://${raw}`;
 }
 
 function getUsefulLink(linkText) {
