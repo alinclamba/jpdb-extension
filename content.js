@@ -15,6 +15,17 @@ function resolveSiteUrl(raw) {
   return `https://${raw}`;
 }
 
+function getConnectionStatus() {
+  const h2 = document.querySelector('.site-debugger-results h2');
+  const text = h2 ? h2.innerText.trim() : '';
+  if (text === 'Everything looks great!') return { emoji: '🟢', label: null };
+  if (text.includes('site-only connection')) {
+    const match = text.match(/\(([^)]+)\)/);
+    return { emoji: '🟡', label: match ? match[1] : text };
+  }
+  return { emoji: '🔴', label: text || 'Unknown error' };
+}
+
 function getUsefulLink(linkText) {
   const anchors = document.querySelectorAll('a');
   for (const a of anchors) {
@@ -36,7 +47,11 @@ function buildSnippet() {
 
   const siteUrl = resolveSiteUrl(raw);
   const jpdbUrl = `https://jptools.wordpress.com/debug/?url=${encodeURIComponent(raw)}`;
-  const emoji = document.body.innerText.includes('Everything looks great!') ? '🟢' : '🔴';
+  const { emoji, label } = getConnectionStatus();
+  const jpdbPlain = label ? `JPDB ${emoji} \`${label}\`` : `JPDB ${emoji}`;
+  const jpdbHtml  = label
+    ? `<a href="${escHtml(jpdbUrl)}">JPDB</a> ${emoji} <code>${escHtml(label)}</code>`
+    : `<a href="${escHtml(jpdbUrl)}">JPDB</a> ${emoji}`;
 
   let plainExtra = '';
   let htmlExtra = '';
@@ -50,8 +65,8 @@ function buildSnippet() {
   }
 
   return {
-    plain: `Site: ${siteUrl} | JPDB ${emoji}${plainExtra} |`,
-    html:  `<strong>Site</strong>: <a href="${escHtml(siteUrl)}">${escHtml(siteUrl)}</a> | <a href="${escHtml(jpdbUrl)}">JPDB</a> ${emoji}${htmlExtra} |`,
+    plain: `Site: ${siteUrl} | ${jpdbPlain}${plainExtra} |`,
+    html:  `<strong>Site</strong>: <a href="${escHtml(siteUrl)}">${escHtml(siteUrl)}</a> | ${jpdbHtml}${htmlExtra} |`,
   };
 }
 
